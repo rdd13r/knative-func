@@ -9,7 +9,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/alecthomas/jsonschema v0.0.0-20210526225647-edb03dcab7bc
 	github.com/buildpacks/pack v0.27.0
-	github.com/cloudevents/sdk-go/v2 v2.10.1
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/containerd/containerd v1.6.6
 	github.com/containers/image/v5 v5.19.1
 	github.com/coreos/go-semver v0.3.0

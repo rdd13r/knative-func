@@ -102,7 +102,10 @@ func New(opts ...Option) (*Protocol, error) {
 	}
 
 	if p.Client == nil {
-		p.Client = http.DefaultClient
+		// This is how http.DefaultClient is initialized. We do not just use
+		// that because when WithRoundTripper is used, it will change the client's
+		// transport, which would cause that transport to be used process-wide.
+		p.Client = &http.Client{}
 	}
 
 	if p.roundTripper != nil {
@@ -359,6 +362,7 @@ func (p *Protocol) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 
 		status := http.StatusOK
+		var errMsg string
 		if res != nil {
 			var result *Result
 			switch {
@@ -366,7 +370,7 @@ func (p *Protocol) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 				if result.StatusCode > 100 && result.StatusCode < 600 {
 					status = result.StatusCode
 				}
-
+				errMsg = fmt.Errorf(result.Format, result.Args...).Error()
 			case !protocol.IsACK(res):
 				// Map client errors to http status code
 				validationError := event.ValidationError{}
@@ -390,6 +394,9 @@ func (p *Protocol) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 
 		rw.WriteHeader(status)
+		if _, err := rw.Write([]byte(errMsg)); err != nil {
+			return err
+		}
 		return nil
 	}
 
